@@ -4,6 +4,7 @@ import torch
 This module contains utility functions to compute the power spectrum of a volume. This was adapted from the code provided in ASPIRE (https://github.com/ComputationalCryoEM/ASPIRE-Python/) and modified to work with PyTorch tensors.
 """
 
+
 def _cart2sph(x, y, z):
     """
     Converts a grid in cartesian coordinates to spherical coordinates.

@@ -8,11 +8,14 @@ def captured_variance(V, U, S):
     US = U @ torch.diag(S)
     return torch.norm(torch.adjoint(V) @ US) / torch.norm(torch.adjoint(U) @ US)
 
+
 def proportional_captured_variance(V1, V2, S1, S2):
     return 0.5 * (captured_variance(V1, V2, S2) + captured_variance(V2, V1, S1))
 
 
-def sort_matrix(dist_matrix: torch.Tensor, labels: np.ndarray) -> Tuple[torch.Tensor, np.ndarray]:
+def sort_matrix(
+    dist_matrix: torch.Tensor, labels: np.ndarray
+) -> Tuple[torch.Tensor, np.ndarray]:
     """
     Sort the distance matrix making the first row to be the method that is the closest to most of the other methods.
     """
@@ -71,6 +74,7 @@ def compute_distance_matrix(methods_data: dict) -> Tuple[torch.Tensor, np.ndarra
 
 
 ### Common Embedding Analysis ###
+
 
 def compute_common_embedding(methods_data: dict) -> dict:
     """
