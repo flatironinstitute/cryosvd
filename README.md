@@ -7,11 +7,11 @@ Details about CryoSVD construction can be found in the associated [publication](
 The data necessary to run this notebook can be found on [zenodo](https://zenodo.org/records/13900836).
 
 #Installation 
-  1. "git clone git@github.com/flatironinstitute/cryosvd"
-  2. "conda create -n cryosvd python=3.10"
-  3. "conda activate cryosvd"
-  4. cd cryosvd
-  5. pip install .  
-  6. Open and run the figures
+  1. 'git clone git@github.com/flatironinstitute/cryosvd'
+  2. 'conda create -n cryosvd python=3.10'
+  3. 'conda activate cryosvd'
+  4. 'cd cryosvd'
+  5. 'pip install .'
+  6. Run the 'compare_volume_series.ipynb' jupyter notebook.
 
 
