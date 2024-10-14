@@ -1,4 +1,7 @@
 import torch
+import tqdm
+import numpy as np 
+from typing import Tuple
 
 """
 This module contains utility functions to compute the power spectrum of a volume. This was adapted from the code provided in ASPIRE (https://github.com/ComputationalCryoEM/ASPIRE-Python/) and modified to work with PyTorch tensors.
@@ -127,7 +130,7 @@ def _average_over_shells(volume_in_fourier_space, shell_width=0.5):
     return radial_average
 
 
-def compute_power_spectrum(volume, shell_width=0.5):
+def compute_power_spectrum_per_volume(volumes, box_size, shell_width=0.5):
     """
     Compute the power spectrum of a volume.
 
@@ -151,7 +154,47 @@ def compute_power_spectrum(volume, shell_width=0.5):
     """
 
     # Compute centered Fourier transforms.
-    vol_fft = torch.abs(_centered_fftn(volume)) ** 2
-    power_spectrum = _average_over_shells(vol_fft, shell_width=shell_width)
+    
+    n_volumes = len(volumes)
+    volumes = volumes.reshape(n_volumes,box_size,box_size,box_size)
+    vol_ffts = [torch.abs(_centered_fftn(volume)) ** 2 for volume in volumes]
+    power_spectrums = [_average_over_shells(vol_fft, shell_width=shell_width) for vol_fft in vol_ffts]
 
-    return power_spectrum
+    return power_spectrums
+
+def compute_power_spectrums (methods_data: dict, pixel_size) -> Tuple[torch.Tensor, np.ndarray]:
+    """
+    Compute the distance matrix between the methods using the relative capture variance.
+
+    Parameters
+    ----------
+    methods_data : dict
+        A dictionary containing the SVD of the mean-removed volumes obtained by each method.
+
+    Returns
+    -------
+    Tuple[torch.Tensor, np.ndarray]
+        A tuple containing the power spectrums for each volume series and the named labels.
+    """
+    n_subs = len(list(methods_data.keys()))
+    labels = list(methods_data.keys())
+    n_volumes = methods_data[labels[0]]["volumes"].shape[0]
+    box_size = int(np.round(methods_data[labels[0]]["volumes"][0].shape[0]**(1/3)))
+    print(box_size)
+    frequencies = np.fft.fftshift(np.fft.fftfreq(box_size,pixel_size)) 
+    frequencies = frequencies[frequencies >= 0]
+
+    power_spectrums = torch.zeros(n_subs,n_volumes,box_size)
+    
+
+    power_spectrums = [compute_power_spectrum_per_volume(methods_data[method]['volumes'] +  methods_data[method]['mean_volume'],box_size) for method in tqdm.tqdm(labels) ]
+
+    results = {}
+    for i,method in enumerate (labels):
+        results[method] = {
+            "power_spectrums" : torch.stack(power_spectrums[i]),
+            "frequencies" : frequencies
+        }
+
+    return results
+

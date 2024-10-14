@@ -68,7 +68,9 @@ def compute_distance_matrix(methods_data: dict) -> Tuple[torch.Tensor, np.ndarra
             dist_matrix[j + i, i] = dist_matrix[i, j + i]
 
     labels = np.array(labels)
-    dist_matrix, labels = sort_matrix(dist_matrix, labels)
+    if sort_matrix == True:
+
+        dist_matrix, labels = sort_matrix(dist_matrix, labels)
 
     return dist_matrix, labels
 
@@ -76,7 +78,7 @@ def compute_distance_matrix(methods_data: dict) -> Tuple[torch.Tensor, np.ndarra
 ### Common Embedding Analysis ###
 
 
-def compute_common_embedding(methods_data: dict) -> dict:
+def compute_common_embedding(methods_data: dict, sort_matrix = True) -> dict:
     """
     Compute the common embedding of the methods using the SVD of the concatenated eigenvectors.
 

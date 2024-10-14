@@ -1,5 +1,4 @@
 import torch
-import tqdm
 from warnings import warn
 import numpy as np
 import os
@@ -37,17 +36,15 @@ def load_volumes(path_to_volumes: str, mask, stride = 1) -> torch.Tensor:
     for i, file in enumerate(vol_files):
         with mrcfile.open(path_to_volumes + file, mode="r", permissive=True) as mrc:
             vol = mrc.data.copy()
-            volumes[i] = torch.tensor(vol).flatten()
+            volumes[i] = torch.tensor(vol).flatten() * mask
 
-            vol = volumes[i]
+    for i, file in enumerate(vol_files):
+            vol = volumes[i].copy()
+            vol -= vol.mean(0,keep_dims=True)
             vol /= np.linalg.norm(vol)
             volumes[i] = vol
 
-    volumes *= mask
-    mean_volume = volumes.mean(0,keepdim=True)
-    volumes -= volumes.mean(0,keepdim=True)
-    return volumes, mean_volume
-
+    return volumes
 
 
 def load_methods_results(paths_to_methods: dict, mask: torch.Tensor, pixel_size: torch.int64, stride) -> dict:
@@ -99,8 +96,8 @@ def load_methods_results(paths_to_methods: dict, mask: torch.Tensor, pixel_size:
     methods = list(paths_to_methods.keys())
     methods_data = {}
 
-    for method in tqdm.tqdm(methods):
-        volumes, mean_volume = load_volumes(paths_to_methods[method], mask, stride) 
+    for method in methods:
+        volumes = load_volumes(paths_to_methods[method], mask, stride) 
 
         #volumes -= volumes.mean(0, keepdim=True)
 
@@ -110,7 +107,6 @@ def load_methods_results(paths_to_methods: dict, mask: torch.Tensor, pixel_size:
 
         methods_data[method] = {
             "volumes": volumes,
-            "mean_volume": mean_volume,
             "pixel_size": pixel_size,
             "u_matrices": u_matrices,
             "singular_values": singular_values,
