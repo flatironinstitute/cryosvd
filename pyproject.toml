@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = [
+    "src/cryosvd",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "src/cryosvd",
+]
+
+
+[project]
+name = "cryosvd"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = []
+authors = [
+  { name="Miro Astore", email="miro.astore@gmail.com"},
+  { name="David Silva Sanchez", email="david.silva@yale.edu"}
+]
+
+dependencies = [
+  "torch",
+  "numpy",
+  "natsort",
+  "pandas",
+  "mrcfile",
+  "matplotlib",
+  "jupyter",
+  "tqdm",
+  "ipyfilechooser"
+]
+
+
+[tool.hatch.version]
+path = "src/cryosvd/__about__.py"
+
