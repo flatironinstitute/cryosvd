@@ -36,7 +36,7 @@ def sort_matrix(
     return dist_matrix, labels
 
 
-def compute_distance_matrix(methods_data: dict) -> Tuple[torch.Tensor, np.ndarray]:
+def compute_distance_matrix(methods_data: dict, do_sort_matrix) -> Tuple[torch.Tensor, np.ndarray]:
     """
     Compute the distance matrix between the methods using the relative capture variance.
 
@@ -68,8 +68,42 @@ def compute_distance_matrix(methods_data: dict) -> Tuple[torch.Tensor, np.ndarra
             dist_matrix[j + i, i] = dist_matrix[i, j + i]
 
     labels = np.array(labels)
-    if sort_matrix == True:
+    if do_sort_matrix:
+        dist_matrix, labels = sort_matrix(dist_matrix, labels)
 
+    return dist_matrix, labels
+
+def compute_distance_matrix_asymmetric(methods_data: dict, do_sort_matrix=True) -> Tuple[torch.Tensor, np.ndarray]:
+    """
+    Compute the distance matrix between the methods using the relative capture variance.
+
+    Parameters
+    ----------
+    methods_data : dict
+        A dictionary containing the SVD of the mean-removed volumes obtained by each method.
+
+    Returns
+    -------
+    Tuple[torch.Tensor, np.ndarray]
+        A tuple containing the distance matrix and the labels of rows and columns of the distance matrix.
+    """
+
+    n_subs = len(list(methods_data.keys()))
+    labels = list(methods_data.keys())
+    dtype = methods_data[labels[0]]["eigenvectors"].dtype
+
+    dist_matrix = torch.ones((n_subs, n_subs), dtype=dtype)
+
+    for i, label1 in enumerate(labels):
+        for j, label2 in enumerate(labels):
+            dist_matrix[i, j] = proportional_captured_variance(
+                methods_data[label2]["eigenvectors"],
+                methods_data[label1]["eigenvectors"],
+                methods_data[label1]["singular_values"],
+            )
+
+    labels = np.array(labels)
+    if do_sort_matrix:
         dist_matrix, labels = sort_matrix(dist_matrix, labels)
 
     return dist_matrix, labels
