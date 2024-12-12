@@ -96,7 +96,7 @@ def compute_distance_matrix_asymmetric(methods_data: dict, do_sort_matrix=True) 
 
     for i, label1 in enumerate(labels):
         for j, label2 in enumerate(labels):
-            dist_matrix[i, j] = proportional_captured_variance(
+            dist_matrix[i, j] = captured_variance(
                 methods_data[label2]["eigenvectors"],
                 methods_data[label1]["eigenvectors"],
                 methods_data[label1]["singular_values"],
