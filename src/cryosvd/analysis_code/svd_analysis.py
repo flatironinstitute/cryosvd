@@ -6,7 +6,7 @@ from typing import Tuple
 ### Proportional captured variance Analysis ###
 def captured_variance(V, U, S):
     US = U @ torch.diag(S)
-    return torch.norm(torch.adjoint(V) @ US) / torch.norm(torch.adjoint(U) @ US)
+    return torch.norm(torch.adjoint(V) @ US) ** 2 / torch.sum(S ** 2)
 
 
 def proportional_captured_variance(V1, V2, S1, S2):
